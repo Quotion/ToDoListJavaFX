@@ -15,6 +15,7 @@ import javax.print.DocFlavor;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.net.URL;
+import java.sql.ResultSet;
 import java.util.*;
 
 public class Controller implements Initializable {
@@ -30,6 +31,9 @@ public class Controller implements Initializable {
 
     @FXML
     private TextField categoryEntry;
+
+    private database objectConnection;
+    private ResultSet info;
 
     private List<VBox> vboxes = new ArrayList<>();
 
@@ -126,6 +130,10 @@ public class Controller implements Initializable {
         categories.add("ASDA");
         categories.add("3dsad");
         categories.add("q2dsad");
+
+        String query = "SELECT * FROM user";
+        info = objectConnection.gerInfo(query);
+        System.out.println(info);
 
         choiceBox.getItems().addAll(categories);
         choiceBox.getItems().addAll(FXCollections.observableArrayList(new Separator(), "Добавить"));
