@@ -32,6 +32,9 @@ public class Controller implements Initializable {
     @FXML
     private TextField categoryEntry;
 
+    @FXML
+    private Label labelForInfo;
+
     private database objectConnection;
     private ResultSet info;
 
@@ -47,7 +50,14 @@ public class Controller implements Initializable {
     }
 
     private void Create(String category, String todo) {
-        if (todo.equals("")) return;
+
+        labelForInfo.setText("");
+        categoryEntry.setVisible(false);
+
+        if (todo.equals("")) {
+            labelForInfo.setText("Вы ничего не ввели");
+            return;
+        }
 
         for (Node node : vboxTodo.getChildren()) {
             VBox vbox = vboxes.get(Integer.parseInt(node.getId()) - 1);
@@ -88,6 +98,13 @@ public class Controller implements Initializable {
             onCheckBox(checkBox);
         });
 
+        for (Node node : vbox.getChildren()){
+            if (node.toString().equals(checkBox.toString())) {
+                labelForInfo.setText("Уже существует");
+                return;
+            }
+        }
+
         vbox.getChildren().addAll(checkBox);
         vbox.setSpacing(6);
     }
@@ -127,13 +144,9 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL locale, ResourceBundle resourceBundle) {
-        categories.add("ASDA");
-        categories.add("3dsad");
-        categories.add("q2dsad");
-
-        String query = "SELECT * FROM user";
-        info = objectConnection.gerInfo(query);
-        System.out.println(info);
+        categories.add("Семья");
+        categories.add("Работа");
+        categories.add("Другое");
 
         choiceBox.getItems().addAll(categories);
         choiceBox.getItems().addAll(FXCollections.observableArrayList(new Separator(), "Добавить"));
