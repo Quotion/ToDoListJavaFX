@@ -11,9 +11,6 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 
-import javax.print.DocFlavor;
-import javax.swing.*;
-import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.util.*;
@@ -35,7 +32,7 @@ public class Controller implements Initializable {
     @FXML
     private Label labelForInfo;
 
-    private database objectConnection;
+    private Database objectConnection = new Database();
     private ResultSet info;
 
     private List<VBox> vboxes = new ArrayList<>();
@@ -147,6 +144,15 @@ public class Controller implements Initializable {
         categories.add("Семья");
         categories.add("Работа");
         categories.add("Другое");
+
+        try {
+            objectConnection.execute("CREATE TABLE users.account (login VARCHAR(64) NOT NULL PRIMARY KEY, " +
+                    "password VARCHAR(64) NOT NULL)");
+//      info = objectConnection.gerInfo("INSERT INTO users.account SET login = 'admin', password = 'admin'");
+        } catch (Exception error) {
+            error.printStackTrace();
+        }
+
 
         choiceBox.getItems().addAll(categories);
         choiceBox.getItems().addAll(FXCollections.observableArrayList(new Separator(), "Добавить"));
