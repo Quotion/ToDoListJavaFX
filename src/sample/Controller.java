@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 public class Controller implements Initializable {
@@ -33,7 +34,8 @@ public class Controller implements Initializable {
     private Label labelForInfo;
 
     private Database objectConnection = new Database();
-    private ResultSet info;
+
+    private ResultSet result;
 
     private List<VBox> vboxes = new ArrayList<>();
 
@@ -46,12 +48,22 @@ public class Controller implements Initializable {
         Create(category, todo);
     }
 
-    private void Create(String category, String todo) {
+    @FXML
+    private void onPressEnter(){
+        fieldForTodo.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER){
+                String todo = fieldForTodo.getText();
+                String category = choiceBox.getValue().toString();
+                Create(category, todo);
+            }
+        });
+    }
 
+    private void Create(String category, String todo) {
         labelForInfo.setText("");
         categoryEntry.setVisible(false);
 
-        if (todo.equals("")) {
+        if (todo.trim().equals("")) {
             labelForInfo.setText("Вы ничего не ввели");
             return;
         }
@@ -125,12 +137,23 @@ public class Controller implements Initializable {
     private void createCategory(){
         categoryEntry.setOnKeyPressed(event -> {
             if(event.getCode() == KeyCode.ENTER){
-                categoryEntry.setVisible(false);
                 String category = categoryEntry.getText();
+                categoryEntry.setVisible(false);
+                if (category.trim().equals("")) {
+                    return;
+                }
                 if (categories.contains(category)){
+                    labelForInfo.setText("Уже существует");
                     categoryEntry.clear();
                     return;
                 }
+
+                try{
+                    objectConnection.execute("INSERT INTO categories (id, name) VALUES ('" + category + "')");
+                } catch (Exception error){
+                    System.out.println(error);
+                }
+
                 categories.add(category);
                 choiceBox.getItems().add(choiceBox.getItems().size() - 2, category);
                 categoryEntry.clear();
@@ -141,18 +164,11 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL locale, ResourceBundle resourceBundle) {
-        categories.add("Семья");
-        categories.add("Работа");
-        categories.add("Другое");
-
         try {
-            objectConnection.execute("CREATE TABLE users.account (login VARCHAR(64) NOT NULL PRIMARY KEY, " +
-                    "password VARCHAR(64) NOT NULL)");
-//      info = objectConnection.gerInfo("INSERT INTO users.account SET login = 'admin', password = 'admin'");
+            categories = objectConnection.getInfo("SELECT * FROM categories");
         } catch (Exception error) {
-            error.printStackTrace();
+            System.out.println(error);
         }
-
 
         choiceBox.getItems().addAll(categories);
         choiceBox.getItems().addAll(FXCollections.observableArrayList(new Separator(), "Добавить"));

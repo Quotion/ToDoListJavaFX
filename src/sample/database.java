@@ -1,6 +1,8 @@
 package sample;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 class Database {
 
@@ -9,14 +11,17 @@ class Database {
     private static Connection connection;
     private static Statement statement;
     private static ResultSet resultSet;
+    private List<String> categories = new ArrayList<>();
 
                                                    
-    public ResultSet gerInfo(String query) {
+    public List<String> getInfo(String query) {
         try {
             connection = DriverManager.getConnection(url);
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
-            return resultSet;
+            while (resultSet.next())
+                categories.add(resultSet.getString(2));
+            return categories;
         } catch (SQLException error) {
             error.printStackTrace();
             return null;
@@ -29,10 +34,6 @@ class Database {
                 statement.close();
             } catch (SQLException statError) {
             }
-            try {
-                resultSet.close();
-            } catch (SQLException resultError) {
-            }
         }
     }
 
@@ -40,7 +41,7 @@ class Database {
         try{
             connection = DriverManager.getConnection(url);
             statement = connection.createStatement();
-            statement.execute(query);
+            statement.executeUpdate(query);
         } catch (SQLException error){
             error.printStackTrace();
         } finally {
