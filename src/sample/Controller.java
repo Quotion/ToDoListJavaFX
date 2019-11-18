@@ -33,13 +33,10 @@ public class Controller implements Initializable {
     @FXML
     private Label labelForInfo;
 
-    private Database objectConnection = new Database();
-
-    private ResultSet result;
-
+    private Database conn = new Database();
     private List<VBox> vboxes = new ArrayList<>();
-
-    private List<String> categories = new ArrayList<>();
+    private List<Category> categories = new ArrayList<>();
+    private List<Todo> todos = new ArrayList<>();
 
     @FXML
     private void onButtonClick() {
@@ -137,6 +134,7 @@ public class Controller implements Initializable {
     private void createCategory(){
         categoryEntry.setOnKeyPressed(event -> {
             if(event.getCode() == KeyCode.ENTER){
+                Object ctg = null;
                 String category = categoryEntry.getText();
                 categoryEntry.setVisible(false);
                 if (category.trim().equals("")) {
@@ -149,12 +147,13 @@ public class Controller implements Initializable {
                 }
 
                 try{
-                    objectConnection.execute("INSERT INTO categories (id, name) VALUES ('" + category + "')");
+                    conn.execute("INSERT INTO categories (name) VALUES ('" + category + "')");
+                    ctg = conn.getCategories("SELECT id FROM categories WHERE name = " + category);
                 } catch (Exception error){
                     System.out.println(error);
                 }
 
-                categories.add(category);
+                categories.add(new Category(Integer.parseInt(ctg.toString()), category));
                 choiceBox.getItems().add(choiceBox.getItems().size() - 2, category);
                 categoryEntry.clear();
             }
@@ -165,18 +164,42 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL locale, ResourceBundle resourceBundle) {
         try {
-            categories = objectConnection.getInfo("SELECT * FROM categories");
+            categories = conn.getCategories("SELECT * FROM categories");
         } catch (Exception error) {
             System.out.println(error);
         }
 
-        choiceBox.getItems().addAll(categories);
-        choiceBox.getItems().addAll(FXCollections.observableArrayList(new Separator(), "Добавить"));
-        choiceBox.setValue(categories.get(0));
+        try {
+            todos = conn.getTodos("SELECT * FROM todos ORDER BY category_id");
+        } catch (Exception error) {
+            System.out.println(error);
+        }
+
+        for (Category category : categories) {
+            choiceBox.getItems().add(category.getName());
+            VBox vbox = new VBox(new Label(category.getName()));
+            for (Todo todo : todos){
+                if (todo.getCategory_id() == category.getID()){
+                    CheckBox checkBox = new CheckBox(todo.getName());
+                    checkBox.setId(Integer.toString(todo.getCategory_id()));
+                    vbox.getChildren().add(checkBox);
+                }
+            }
+
+            if (vbox.getChildren().size() != 0){
+                vbox.setSpacing(5);
+                vboxes.add(vbox);
+                vboxTodo.getChildren().add(vbox);
+            }
+        }
+
+
+        choiceBox.getItems().add(FXCollections.observableArrayList(new Separator(), "Добавить"));
+        choiceBox.setValue(categories.get(0).getName());
         choiceBox.setOnAction(actionEvent -> {
             if (choiceBox.getValue().equals("Добавить")){
                 categoryEntry.setVisible(true);
-                choiceBox.setValue(categories.get(0));
+                choiceBox.setValue(categories.get(0).getName());
             }
         });
     }

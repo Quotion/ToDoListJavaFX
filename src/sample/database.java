@@ -16,71 +16,61 @@ class Database {
     private List<Category> categories = new ArrayList();
     private List<Todo> todos = new ArrayList();
 
-    Database() {
+    Database() {}
+
+    public Object getInfo(String query){
+        try {
+            connection = DriverManager.getConnection(url);
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(query);
+            Object info = resultSet;
+            return info;
+        } catch (SQLException error) {
+            error.printStackTrace();
+            return null;
+        } finally {
+            try { connection.close(); } catch (SQLException errorConnection) {}
+            try { statement.close(); } catch (SQLException errorStatement) {}
+            try { resultSet.close(); } catch (SQLException errorResult) {}
+        }
     }
 
     public List<Category> getCategories(String query) {
-        Object var3;
         try {
             connection = DriverManager.getConnection(url);
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
-
             while(resultSet.next()) {
                 this.categories.add(new Category(resultSet.getInt(1), resultSet.getString(2)));
             }
-
-            List var2 = this.categories;
-            return var2;
-        } catch (SQLException var17) {
-            var17.printStackTrace();
-            var3 = null;
+            return categories;
+        } catch (SQLException error) {
+            error.printStackTrace();
+            return null;
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException var16) {
-            }
-
-            try {
-                statement.close();
-            } catch (SQLException var15) {
-            }
-
+            try { connection.close(); } catch (SQLException errorConnection) {}
+            try { statement.close(); } catch (SQLException errorStatement) {}
+            try { resultSet.close(); } catch (SQLException errorResult) {}
         }
-
-        return (List)var3;
     }
 
     public List<Todo> getTodos(String query) {
-        Object var3;
         try {
             connection = DriverManager.getConnection(url);
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
-
             while(resultSet.next()) {
                 this.todos.add(new Todo(resultSet.getInt(1), resultSet.getString(2), resultSet.getInt(3)));
             }
-
-            List var2 = this.todos;
-            return var2;
-        } catch (SQLException var17) {
-            var17.printStackTrace();
-            var3 = null;
+            return todos;
+        } catch (SQLException error) {
+            error.printStackTrace();
+            return null;
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException var16) {
-            }
-
-            try {
-                statement.close();
-            } catch (SQLException var15) {
-            }
-
+            try { connection.close(); } catch (SQLException errorConnection) {}
+            try { statement.close(); } catch (SQLException errorStatement) {}
+            try { resultSet.close(); } catch (SQLException errorResult) {}
         }
-
-        return (List)var3;
     }
 
     public void execute(String query) {
@@ -88,21 +78,12 @@ class Database {
             connection = DriverManager.getConnection(url);
             statement = connection.createStatement();
             statement.executeUpdate(query);
-        } catch (SQLException var15) {
-            var15.printStackTrace();
+        } catch (SQLException error) {
+            error.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException var14) {
-            }
-
-            try {
-                statement.close();
-            } catch (SQLException var13) {
-            }
-
+            try { connection.close(); } catch (SQLException errorConnection) {}
+            try { statement.close(); } catch (SQLException errorStatement) {}
         }
-
     }
 }
 
