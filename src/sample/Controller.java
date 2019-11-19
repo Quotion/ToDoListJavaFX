@@ -6,14 +6,11 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 public class Controller implements Initializable {
@@ -33,20 +30,34 @@ public class Controller implements Initializable {
     @FXML
     private Label labelForInfo;
 
-    private Database conn = new Database();
-    private List<VBox> vboxes = new ArrayList<>();
-    private List<Category> categories = new ArrayList<>();
-    private List<Todo> todos = new ArrayList<>();
+    private Database conn = new Database(); //объект калсса базы данных
+    private List<VBox> vboxes = new ArrayList<>(); //список "вбоксов" нужен для проверки на совпадения, также работы с "тудушками" и категориям
+    private List<Category> categories = new ArrayList<>(); //список категорий
+    private List<Todo> todos = new ArrayList<>(); //список дел
 
     @FXML
-    private void onButtonClick() {
+    private void onButtonClick() { //евент на нажатие кнопки
         String todo = fieldForTodo.getText();
         String category = choiceBox.getValue().toString();
         Create(category, todo);
+        fieldForTodo.clear();
+    }
+
+    @FXML
+    private void onPressEnter(){
+        fieldForTodo.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER){
+                String todo = fieldForTodo.getText();
+                String category = choiceBox.getValue().toString();
+                Create(category, todo);
+                fieldForTodo.clear();
+            }
+        });
     }
 
     @FXML
     private void onDeleteCategory(){
+        //берем значении текстового поля
         String ctg = choiceBox.getValue().toString();
         int id = 0;
 
@@ -72,17 +83,6 @@ public class Controller implements Initializable {
         conn.execute("DELETE FROM categories WHERE name = \"" + ctg + "\"");
     }
 
-    @FXML
-    private void onPressEnter(){
-        fieldForTodo.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ENTER){
-                String todo = fieldForTodo.getText();
-                String category = choiceBox.getValue().toString();
-                Create(category, todo);
-            }
-        });
-    }
-
     private void Create(String category, String todo) {
         labelForInfo.setText("");
         categoryEntry.setVisible(false);
@@ -90,6 +90,13 @@ public class Controller implements Initializable {
         if (todo.trim().equals("")) {
             labelForInfo.setText("Вы ничего не ввели");
             return;
+        }
+
+        for (Todo td : todos){
+            if (td.getName().equals(todo)){
+                labelForInfo.setText("Уже существует");
+                return;
+            }
         }
 
         int category_id = Integer.parseInt(conn.getInfo("SELECT id FROM categories WHERE name = \"" + category + "\""));
@@ -100,6 +107,7 @@ public class Controller implements Initializable {
                 checkBox.setOnAction(actionEvent -> {
                     onCheckBox(checkBox);
                 });
+
                 checkBox.setId(Integer.toString(category_id));
                 checkBox.setLineSpacing(5);
                 vbox.getChildren().addAll(checkBox);
@@ -124,22 +132,30 @@ public class Controller implements Initializable {
         checkBox.setOnAction(actionEvent -> {
             onCheckBox(checkBox);
         });
+
         checkBox.setId(Integer.toString(category_id));
         checkBox.setLineSpacing(5);
         vbox.getChildren().addAll(checkBox);
-        vboxTodo.getChildren().addAll(checkBox);
+        vboxTodo.getChildren().addAll(vbox);
 
         conn.execute("INSERT INTO todos (name, category_id) VALUES (\"" + todo + "\", " + category_id+ ")");
         int id = Integer.parseInt(conn.getInfo("SELECT id FROM todos WHERE name = \"" + todo + "\""));
 
         todos.add(new Todo(id, todo, category_id));
-
-
     }
 
-    @FXML
     private void onCheckBox(CheckBox checkBox){
-
+        System.out.println("Kek");
+        for (VBox vbox : vboxes){
+            if (vbox.getChildren().toString().contains(checkBox.getText())){
+                vbox.getChildren().remove(checkBox);
+                conn.execute("DELETE FROM todos WHERE name = \"" + checkBox.getText() + "\"");
+                if (vbox.getChildren().size() == 1){
+                    vboxes.remove(vbox);
+                    vboxTodo.getChildren().remove(vbox);
+                }
+            }
+        }
     }
 
     @FXML
@@ -198,6 +214,9 @@ public class Controller implements Initializable {
                 if (todo.getCategory_id() == category.getID()){
                     CheckBox checkBox = new CheckBox(todo.getName());
                     checkBox.setId(Integer.toString(todo.getCategory_id()));
+                    checkBox.setOnAction(actionEvent -> {
+                        onCheckBox(checkBox);
+                    });
                     checkBox.setLineSpacing(5);
                     vbox.setId(Integer.toString(todo.getCategory_id()));
                     vbox.getChildren().add(checkBox);
