@@ -92,68 +92,66 @@ public class Controller implements Initializable {
             return;
         }
 
-        for (Node node : vboxTodo.getChildren()) {
-            VBox vbox = vboxes.get(Integer.parseInt(node.getId()) - 1);
-            Node nd = vbox.getChildren().get(0);
-            if (nd.getId().equals(category)) {
-                createTodo(category, todo, vbox);
+        int category_id = Integer.parseInt(conn.getInfo("SELECT id FROM categories WHERE name = \"" + category + "\""));
+
+        for (VBox vbox : vboxes){
+            if(vbox.getChildren().get(0).toString().contains(category)){
+                CheckBox checkBox = new CheckBox(todo);
+                checkBox.setOnAction(actionEvent -> {
+                    onCheckBox(checkBox);
+                });
+                checkBox.setId(Integer.toString(category_id));
+                checkBox.setLineSpacing(5);
+                vbox.getChildren().addAll(checkBox);
+                vboxTodo.getChildren().addAll(checkBox);
+
+                conn.execute("INSERT INTO todos (name, category_id) VALUES (\"" + todo + "\", " + category_id + ")");
+                int id = Integer.parseInt(conn.getInfo("SELECT id FROM todos WHERE name = \"" + todo + "\""));
+
+                todos.add(new Todo(id, todo, category_id));
+
+
                 return;
             }
         }
 
-        Label label = new Label(category);
-        label.setId(category);
-
-        VBox vboxCategory = new VBox(label);
-        vboxCategory.setId(Integer.toString(vboxTodo.getChildren().size() + 1));
-        vboxCategory.setSpacing(5);
-        vboxes.add(vboxCategory);
+        VBox vbox = new VBox(new Label(category));
+        vbox.setId(Integer.toString(category_id));
+        vbox.setSpacing(5);
+        vboxes.add(vbox);
 
         CheckBox checkBox = new CheckBox(todo);
         checkBox.setOnAction(actionEvent -> {
             onCheckBox(checkBox);
         });
-        checkBox.setId(category);
-
-        vboxCategory.getChildren().addAll(checkBox);
-
-        vboxTodo.getChildren().addAll(vboxCategory);
-        vboxTodo.setSpacing(5);
-
-    }
-
-    private void createTodo(String category, String todo, VBox vbox){
-
-        CheckBox checkBox = new CheckBox(todo);
-
-        checkBox.setId(category);
-        checkBox.setOnAction(actionEvent -> {
-            onCheckBox(checkBox);
-        });
-
-        for (Node node : vbox.getChildren()){
-            if (node.toString().equals(checkBox.toString())) {
-                labelForInfo.setText("Уже существует");
-                return;
-            }
-        }
-
+        checkBox.setId(Integer.toString(category_id));
+        checkBox.setLineSpacing(5);
         vbox.getChildren().addAll(checkBox);
-        vbox.setSpacing(6);
+        vboxTodo.getChildren().addAll(checkBox);
+
+        conn.execute("INSERT INTO todos (name, category_id) VALUES (\"" + todo + "\", " + category_id+ ")");
+        int id = Integer.parseInt(conn.getInfo("SELECT id FROM todos WHERE name = \"" + todo + "\""));
+
+        todos.add(new Todo(id, todo, category_id));
+
+
     }
 
     @FXML
-    private void onCheckBox(CheckBox checkBox){}
+    private void onCheckBox(CheckBox checkBox){
+
+    }
 
     @FXML
     private void createCategory(){
         categoryEntry.setOnKeyPressed(event -> {
             if(event.getCode() == KeyCode.ENTER){
-                Object ctg = null;
+                int ctg = 0;
                 String category = categoryEntry.getText();
                 categoryEntry.setVisible(false);
                 categoryEntry.clear();
                 if (category.trim().equals("")) {
+                    labelForInfo.setText("Вы ничего не ввели");
                     return;
                 }
 
@@ -166,13 +164,13 @@ public class Controller implements Initializable {
 
                 try{
                     conn.execute("INSERT INTO categories (name) VALUES ('" + category + "')");
-                    ctg = conn.getInfo("SELECT id FROM categories WHERE name = " + category);
+                    ctg = Integer.parseInt(conn.getInfo("SELECT id FROM categories WHERE name = \"" + category + "\""));
                 } catch (Exception error){
                     System.out.println(error);
                     return;
                 }
 
-                categories.add(new Category(Integer.parseInt(ctg.toString()), category));
+                categories.add(new Category(ctg, category));
                 choiceBox.getItems().add(choiceBox.getItems().size() - 2, category);
             }
         });
@@ -201,6 +199,7 @@ public class Controller implements Initializable {
                     CheckBox checkBox = new CheckBox(todo.getName());
                     checkBox.setId(Integer.toString(todo.getCategory_id()));
                     checkBox.setLineSpacing(5);
+                    vbox.setId(Integer.toString(todo.getCategory_id()));
                     vbox.getChildren().add(checkBox);
                 }
             }
@@ -215,11 +214,11 @@ public class Controller implements Initializable {
 
 
         choiceBox.getItems().addAll(FXCollections.observableArrayList(new Separator(), "Добавить"));
-        choiceBox.setValue(categories.get(0).getName());
+        choiceBox.setValue(choiceBox.getItems().get(0));
         choiceBox.setOnAction(actionEvent -> {
             if (choiceBox.getValue().equals("Добавить")){
                 categoryEntry.setVisible(true);
-                choiceBox.setValue(categories.get(0).getName());
+                choiceBox.setValue(choiceBox.getItems().get(0));
             }
         });
     }

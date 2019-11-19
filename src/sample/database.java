@@ -18,13 +18,15 @@ class Database {
 
     Database() {}
 
-    public Object getInfo(String query){
+    public String getInfo(String query){
         try {
+            String result;
             connection = DriverManager.getConnection(url);
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
-            Object info = resultSet.toString();
-            return info;
+            resultSet.next();
+            result = resultSet.getString(1);
+            return result;
         } catch (SQLException error) {
             error.printStackTrace();
             return null;
