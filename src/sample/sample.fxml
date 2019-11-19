@@ -6,22 +6,29 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane prefHeight="400.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <children>
-      <ScrollPane hbarPolicy="NEVER" layoutX="24.0" layoutY="18.0" prefHeight="365.0" prefWidth="435.0">
+      <ImageView fitHeight="456.0" fitWidth="730.0" layoutX="-25.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../assets/background.jpg" />
+         </image>
+      </ImageView>
+      <Button fx:id="but1" layoutX="469.0" layoutY="61.0" mnemonicParsing="false" onAction="#onButtonClick" prefHeight="27.0" prefWidth="149.0" style="-fx-background-color: #3574e8; -fx-text-fill: #3dcdcd; -fx-font-size: 12px; -fx-font-family: Sans Serif; -fx-font-weight: light;" text="Добавить" />
+      <ScrollPane hbarPolicy="NEVER" layoutX="27.0" layoutY="17.0" prefHeight="428.0" prefWidth="425.0" style="-fx-background-color: #ffffff;">
          <content>
-            <VBox fx:id="vboxTodo" prefHeight="363.0" prefWidth="433.0" />
+            <VBox fx:id="vboxTodo" prefHeight="426.0" prefWidth="421.0" style="-fx-background-color: #ffffff;" />
          </content>
       </ScrollPane>
-      <Button fx:id="but1" layoutX="469.0" layoutY="61.0" mnemonicParsing="false" onAction="#onButtonClick" prefHeight="27.0" prefWidth="149.0" text="Добавить" />
       <TextField fx:id="fieldForTodo" layoutX="469.0" layoutY="17.0" onKeyPressed="#onPressEnter" promptText="Введите пункт" />
-      <ChoiceBox fx:id="choiceBox" accessibleText="Куку" layoutX="469.0" layoutY="97.0" prefHeight="27.0" prefWidth="102.0" AnchorPane.rightAnchor="79.0" />
+      <ChoiceBox fx:id="choiceBox" layoutX="469.0" layoutY="97.0" prefHeight="27.0" prefWidth="102.0" stylesheets="@../CSS/choicebox.css" AnchorPane.rightAnchor="88.0" />
       <TextField fx:id="categoryEntry" layoutX="469.0" layoutY="137.0" onKeyPressed="#createCategory" prefHeight="27.0" prefWidth="167.0" promptText="Название категории" visible="false" />
       <Label fx:id="labelForInfo" layoutX="469.0" layoutY="42.0" prefHeight="17.0" prefWidth="167.0" textFill="#ffb5b5" />
-      <Button fx:id="deleteCategory" layoutX="579.0" layoutY="97.0" mnemonicParsing="false" onAction="#onDeleteCategory" prefHeight="27.0" prefWidth="39.0" text="X" />
+      <Button fx:id="deleteCategory" layoutX="579.0" layoutY="97.0" mnemonicParsing="false" onAction="#onDeleteCategory" prefHeight="27.0" prefWidth="39.0" style="-fx-font-family: Sans Serif; -fx-text-fill: #3dcdcd; -fx-background-color: #3574e8;" text="✕" />
    </children>
    <cursor>
       <Cursor fx:constant="DEFAULT" />
