@@ -46,6 +46,33 @@ public class Controller implements Initializable {
     }
 
     @FXML
+    private void onDeleteCategory(){
+        String ctg = choiceBox.getValue().toString();
+        int id = 0;
+
+        choiceBox.getItems().removeAll(ctg);
+        choiceBox.setValue(choiceBox.getItems().get(0).toString());
+        for (Category category : categories){
+            if (category.getName().equals(ctg)){
+                id = category.getID();
+                categories.remove(category);
+                break;
+            }
+        }
+
+        for (VBox vbox : vboxes){
+            if (vbox.getChildren().get(0).toString().contains(ctg)){
+                vbox.getChildren().removeAll(vbox);
+                vboxTodo.getChildren().removeAll(vbox);
+                break;
+            }
+        }
+
+        conn.execute("DELETE FROM todos WHERE category_id = " + id);
+        conn.execute("DELETE FROM categories WHERE name = \"" + ctg + "\"");
+    }
+
+    @FXML
     private void onPressEnter(){
         fieldForTodo.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER){
@@ -116,19 +143,7 @@ public class Controller implements Initializable {
     }
 
     @FXML
-    private void onCheckBox(CheckBox checkBox){
-        for (VBox vbox : vboxes){
-            Node nd = vbox.getChildren().get(0);
-            if (nd.getId().equals(checkBox.getId())) {
-                vbox.getChildren().removeAll(checkBox);
-                if (vbox.getChildren().size() == 1) {
-                    vboxes.remove(vbox);
-                    vboxTodo.getChildren().removeAll(vbox);
-                }
-                return;
-            }
-        }
-    }
+    private void onCheckBox(CheckBox checkBox){}
 
     @FXML
     private void createCategory(){
@@ -137,25 +152,28 @@ public class Controller implements Initializable {
                 Object ctg = null;
                 String category = categoryEntry.getText();
                 categoryEntry.setVisible(false);
+                categoryEntry.clear();
                 if (category.trim().equals("")) {
                     return;
                 }
-                if (categories.contains(category)){
-                    labelForInfo.setText("Уже существует");
-                    categoryEntry.clear();
-                    return;
+
+                for (Category categ : categories) {
+                    if (categ.getName().equals(category)) {
+                        labelForInfo.setText("Уже существует");
+                        return;
+                    }
                 }
 
                 try{
                     conn.execute("INSERT INTO categories (name) VALUES ('" + category + "')");
-                    ctg = conn.getCategories("SELECT id FROM categories WHERE name = " + category);
+                    ctg = conn.getInfo("SELECT id FROM categories WHERE name = " + category);
                 } catch (Exception error){
                     System.out.println(error);
+                    return;
                 }
 
                 categories.add(new Category(Integer.parseInt(ctg.toString()), category));
                 choiceBox.getItems().add(choiceBox.getItems().size() - 2, category);
-                categoryEntry.clear();
             }
         });
     }
@@ -176,25 +194,27 @@ public class Controller implements Initializable {
         }
 
         for (Category category : categories) {
-            choiceBox.getItems().add(category.getName());
+            choiceBox.getItems().addAll(category.getName());
             VBox vbox = new VBox(new Label(category.getName()));
             for (Todo todo : todos){
                 if (todo.getCategory_id() == category.getID()){
                     CheckBox checkBox = new CheckBox(todo.getName());
                     checkBox.setId(Integer.toString(todo.getCategory_id()));
+                    checkBox.setLineSpacing(5);
                     vbox.getChildren().add(checkBox);
                 }
             }
 
-            if (vbox.getChildren().size() != 0){
+            if (vbox.getChildren().size() != 1){
                 vbox.setSpacing(5);
                 vboxes.add(vbox);
                 vboxTodo.getChildren().add(vbox);
+                vboxTodo.setSpacing(5);
             }
         }
 
 
-        choiceBox.getItems().add(FXCollections.observableArrayList(new Separator(), "Добавить"));
+        choiceBox.getItems().addAll(FXCollections.observableArrayList(new Separator(), "Добавить"));
         choiceBox.setValue(categories.get(0).getName());
         choiceBox.setOnAction(actionEvent -> {
             if (choiceBox.getValue().equals("Добавить")){

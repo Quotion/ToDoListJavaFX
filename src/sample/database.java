@@ -23,7 +23,7 @@ class Database {
             connection = DriverManager.getConnection(url);
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
-            Object info = resultSet;
+            Object info = resultSet.toString();
             return info;
         } catch (SQLException error) {
             error.printStackTrace();

@@ -21,7 +21,7 @@
       <ChoiceBox fx:id="choiceBox" accessibleText="Куку" layoutX="469.0" layoutY="97.0" prefHeight="27.0" prefWidth="121.0" AnchorPane.rightAnchor="60.0" />
       <TextField fx:id="categoryEntry" layoutX="469.0" layoutY="137.0" onKeyPressed="#createCategory" prefHeight="27.0" prefWidth="167.0" promptText="Название категории" visible="false" />
       <Label fx:id="labelForInfo" layoutX="469.0" layoutY="44.0" prefHeight="17.0" prefWidth="167.0" textFill="#ffb5b5" />
-      <Button layoutX="597.0" layoutY="97.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="39.0" text="X" />
+      <Button fx:id="deleteCategory" layoutX="597.0" layoutY="97.0" mnemonicParsing="false" onAction="#onDeleteCategory" prefHeight="27.0" prefWidth="39.0" text="X" />
    </children>
    <cursor>
       <Cursor fx:constant="DEFAULT" />
