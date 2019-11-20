@@ -1,5 +1,8 @@
 package sample;
 
+import classes.Category;
+import classes.Todo;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -15,8 +18,6 @@ class Database {
     private static ResultSet resultSet;
     private List<Category> categories = new ArrayList();
     private List<Todo> todos = new ArrayList();
-
-    Database() {}
 
     public String getInfo(String query){
         try {

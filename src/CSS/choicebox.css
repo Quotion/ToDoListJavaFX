@@ -1,9 +1,9 @@
 .choice-box{
     -fx-background-color: #3574e8;
-    }
-.choice-box .label{
-    -fx-text-fill:#3dcdcd;
-    -fx-font-size:12px;
-    -fx-font-family:'Sans Serif';
-    -fx-font-weight: 'light';
-    }
+}
+
+.choice-box .label {
+    -fx-font-size: 12;
+    -fx-font-family: 'Sans Serif';
+    -fx-text-fill: #3dcdcd;
+}
