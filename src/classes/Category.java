@@ -1,19 +1,21 @@
-package sample;
+package classes;
 
-public class Cell {
+public class Category implements Cell {
     private int ID;
     private String name;
 
-    public Cell(int ID, String name) {
+    public Category(int ID, String name) {
         this.ID = ID;
         this.name = name;
     }
 
+    @Override
     public String getName() {
-        return this.name;
+        return name;
     }
 
+    @Override
     public int getID() {
-        return this.ID;
+        return ID;
     }
 }

@@ -1,5 +1,8 @@
 package sample;
 
+import classes.Category;
+import classes.Todo;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -16,15 +19,15 @@ class Database {
     private List<Category> categories = new ArrayList();
     private List<Todo> todos = new ArrayList();
 
-    Database() {}
-
-    public Object getInfo(String query){
+    public String getInfo(String query){
         try {
+            String result;
             connection = DriverManager.getConnection(url);
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
-            Object info = resultSet.toString();
-            return info;
+            resultSet.next();
+            result = resultSet.getString(1);
+            return result;
         } catch (SQLException error) {
             error.printStackTrace();
             return null;
