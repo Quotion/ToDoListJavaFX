@@ -14,6 +14,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
+import java.sql.Time;
 import java.util.*;
 
 public class Controller implements Initializable {
@@ -208,6 +209,12 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL locale, ResourceBundle resourceBundle) {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         //берём все категории
         try {
             categories = conn.getCategories("SELECT * FROM categories");
